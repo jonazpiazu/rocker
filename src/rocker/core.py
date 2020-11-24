@@ -267,6 +267,9 @@ class DockerImageGenerator(object):
 
         image = self.image_id
         operating_mode = kwargs.get('mode')
+        if operating_mode == OPERATIONS_INTERACTIVE and not os.isatty(sys.__stdin__.fileno()):
+            operating_mode = OPERATIONS_NON_INTERACTIVE
+            print("No tty detected for stdin forcing non-interactive")
         cmd="docker run"
         if operating_mode != OPERATIONS_NON_INTERACTIVE:
             # only disable for OPERATIONS_NON_INTERACTIVE
