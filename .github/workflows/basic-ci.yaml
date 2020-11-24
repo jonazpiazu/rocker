@@ -20,6 +20,7 @@ jobs:
         pip install codecov coverage nose
     - name: Run headless tests
       uses: GabrielBB/xvfb-action@v1
+      with:
         run: nosetests -s -v --with-coverage --cover-package rocker --exclude test_nvidia_glmark2
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
