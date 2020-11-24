@@ -160,6 +160,7 @@ def docker_build(docker_client = None, output_callback = None, **kwargs):
 class SIGWINCHPassthrough(object):
     def __init__ (self, process):
         self.process = process
+        self.active = os.isatty(sys.__stdout__.fileno())
 
     def set_window_size(self):
         s = struct.pack("HHHH", 0, 0, 0, 0)
@@ -175,6 +176,9 @@ class SIGWINCHPassthrough(object):
 
 
     def __enter__(self):
+        # Short circuit if not a tty
+        if not self.active:
+            return self
         # Expected function prototype for signal handling
         # ignoring unused arguments
         def sigwinch_passthrough (sig, data):
@@ -188,6 +192,8 @@ class SIGWINCHPassthrough(object):
 
     # Clean up signal handler before returning.
     def __exit__(self, exc_type, exc_value, traceback):
+        if not self.active:
+            return
         # This was causing hangs and resolved as referenced 
         # here: https://github.com/pexpect/pexpect/issues/465
         signal.signal(signal.SIGWINCH, signal.SIG_DFL)
